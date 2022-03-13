@@ -45,16 +45,11 @@
           </template>
         </el-table-column>
         <el-table-column
+          :label="`Favourites (${totalFavourites})`"
           align="right"
         >
           <template slot-scope="scope">
-            <el-button
-              size=""
-              type="primary"
-              @click="handleDelete(scope.$index, scope.row)"
-            >
-              Favourite
-            </el-button>
+            <Favourite :name="scope.row.name.common" />
           </template>
         </el-table-column>
       </el-table>
@@ -79,10 +74,15 @@ export default {
       search: ''
     }
   },
+
   computed: {
     ...mapState({
-      countries: state => state.countries.countries
+      countries: state => state.countries.countries,
+      favourites: state => state.countries.favourites
     }),
+    totalFavourites() {
+      return this.favourites.length
+    },
     tableData() {
       if (this.search !== '') {
         return this.countries.filter(country =>
@@ -94,8 +94,24 @@ export default {
     }
 
   },
+  watch: {
+    favourites(item) {
+      localStorage.setItem('favourites', item)
+    }
+  },
   created() {
     this.$store.dispatch('countries/FETCH_countries')
+  },
+  mounted() {
+    // check if any favourites in localStorage
+    const favouriteStorage = localStorage.getItem('favourites')
+    // sync with vuex
+    if (favouriteStorage) {
+      // convert into array
+      const favouritesArray = favouriteStorage.split(',')
+      // push to vuex to sync
+      this.$store.commit('countries/UPDATE_favourites', favouritesArray)
+    }
   },
 
   methods: {

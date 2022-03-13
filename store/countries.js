@@ -1,10 +1,27 @@
 export const state = () => ({
-  countries: []
+  countries: [],
+  favourites: []
 })
 
 export const mutations = {
   UPDATE_countries(state, payload) {
     state.countries = payload
+  },
+  UPDATE_favourites(state, payload) {
+    state.favourites = payload
+  },
+  ADD_favourite(state, payload) {
+    // check existing favourite key
+    // const index = state.favourites.indexOf(payload)
+    // if (!index) {
+    state.favourites.push(payload)
+    // }
+  },
+  REMOVE_favourite(state, payload) {
+    // find key of favourite
+    // const index = state.favourites.indexOf(payload)
+    // remove the key index from favorites
+    state.favourites = state.favourites.filter(item => item !== payload)
   }
 }
 
@@ -16,11 +33,9 @@ export const actions = {
           fields: 'name,region,flags,capital'
         }
       })
-      // console.log(res)
       context.commit('UPDATE_countries', res)
     } catch (error) {
-      // console.log(error)
-      // throw new Error(error.message)
+      throw new Error(error.message)
     }
   }
 }

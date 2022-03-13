@@ -3,7 +3,7 @@
     <div class="mb-3 flex justify-end">
       <input
         v-model="search"
-        class="p-3 rounded-3xl  w-1/2"
+        class="p-3 rounded-3xl w-full sm:w-1/2"
         placeholder="Search Name / Capital"
       >
     </div>
@@ -27,8 +27,11 @@
       />
       <el-table-column
         label="Capital"
-        prop="capital"
-      />
+      >
+        <template slot-scope="scope">
+          <div>{{ scope.row.capital && scope.row.capital.length > 0 ? scope.row.capital[0] : '' }}</div>
+        </template>
+      </el-table-column>
       <el-table-column
         align="right"
       >
@@ -60,13 +63,28 @@ export default {
       countries: state => state.countries.countries
     }),
     tableData() {
-      return this.countries.filter(country => !this.search || country.name.common.toLowerCase().includes(this.search.toLowerCase()))
+      if (this.search !== '') {
+        return this.countries.filter(country =>
+          this.searchName(country) ||
+          this.searchCapital(country)
+        )
+      }
+      return this.countries
     }
+
   },
   created() {
     this.$store.dispatch('countries/FETCH_countries')
   },
   methods: {
+    searchName(data) {
+      return data.name.common.toLowerCase().includes(this.search.toLowerCase())
+    },
+    searchCapital(data) {
+      if (data.capital && data.capital.length > 0) {
+        return data.capital[0].toLowerCase().includes(this.search.toLowerCase())
+      }
+    },
     handleEdit(index, row) {
       console.log(index, row)
     },

@@ -11,16 +11,9 @@ export const mutations = {
     state.favourites = payload
   },
   ADD_favourite(state, payload) {
-    // check existing favourite key
-    // const index = state.favourites.indexOf(payload)
-    // if (!index) {
     state.favourites.push(payload)
-    // }
   },
   REMOVE_favourite(state, payload) {
-    // find key of favourite
-    // const index = state.favourites.indexOf(payload)
-    // remove the key index from favorites
     state.favourites = state.favourites.filter(item => item !== payload)
   }
 }
@@ -30,7 +23,7 @@ export const actions = {
     try {
       const res = await this.$axios.$get('https://restcountries.com/v3.1/all', {
         params: {
-          fields: 'name,region,flags,capital'
+          fields: 'name,region,flags,capital,population'
         }
       })
       context.commit('UPDATE_countries', res)

@@ -41,7 +41,11 @@
           prop="capital"
         >
           <template slot-scope="scope">
-            <div>{{ scope.row.capital && scope.row.capital.length > 0 ? scope.row.capital[0] : '' }}</div>
+            <!-- <div>{{ scope.row.capital && scope.row.capital.length > 0 ? scope.row.capital.toString() : '' }}</div> -->
+
+            <span v-html="$options.filters.highlight(scope.row.capital.toString(), search)">
+              {{ scope.row.capital.toString() }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column
@@ -120,7 +124,7 @@ export default {
     },
     searchCapital(data) {
       if (data.capital && data.capital.length > 0) {
-        return data.capital[0].toLowerCase().includes(this.search.toLowerCase())
+        return data.capital.toString().toLowerCase().includes(this.search.toLowerCase())
       }
     },
     handleEdit(index, row) {

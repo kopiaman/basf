@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-3 flex justify-between">
+    <div class="mb-3 flex justify-between items-center">
       <!-- logo -->
       <div class="flex justify-center sm:justify-start">
         <img src="/img/basf_logo.svg" class="h-10 sm:h-20  ">
@@ -9,7 +9,9 @@
       <!--search filter -->
       <div class="sm:w-1/2 flex justify-end">
         <button class="bg-yellow-500 p-3 rounded-3xl  mr-3 flex items-center" @click="modalVisible= true">
-          <i class="el-icon-data-line text-2xl mr-3" /> <div> Population Comparison ({{ totalComparison }})</div>
+          <i class="el-icon-data-line text-2xl mr-3" /> <div>
+            <span class="text-white">Population Chart </span> ({{ totalComparison }})
+          </div>
         </button>
 
         <input
@@ -44,6 +46,10 @@
       />
     </el-dialog>
 
+    <!-- just simple instruction -->
+    <p class="text-xs text-white my-1">
+      Instruction: Use checkbox to compare countries population
+    </p>
     <!-- table -->
     <div class="rounded-3xl p-3 bg-white">
       <el-table
@@ -57,6 +63,7 @@
       >
         <el-table-column
           type="selection"
+          label="Compare"
           width="55"
         />
         <el-table-column
@@ -91,11 +98,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column
-          label="Population"
-          prop="population"
-          sortable
-        />
+
         <el-table-column
           :label="`Favourites (${totalFavourites})`"
           align="right"
@@ -127,17 +130,7 @@ export default {
       populationCheckbox: [],
       modalVisible: false,
       populationLabel: [],
-      populationData: [],
-      sampleChartData: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        datasets: [
-          {
-            label: 'Population',
-            backgroundColor: '#f87979',
-            data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
-          }
-        ]
-      }
+      populationData: []
     }
   },
 
@@ -186,12 +179,12 @@ export default {
   },
 
   methods: {
-    handleSelectionChange(val) {
+    handleSelectionChange(countries) {
       // add item to population checkbox data
-      this.populationCheckbox = val
-      // loop val array to extract the data
-      this.populationData = val.map(item => item.population)
-      this.populationLabel = val.map(item => item.name.common)
+      this.populationCheckbox = countries
+      // loop val array to a the data
+      this.populationData = countries.map(country => country.population)
+      this.populationLabel = countries.map(country => country.name.common)
     },
     searchName(data) {
       return data.name.common.toLowerCase().includes(this.search.toLowerCase())

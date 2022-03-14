@@ -26,7 +26,7 @@ export const actions = {
   async FETCH_countries({ commit }) {
     try {
       commit('UPDATE_isLoading', true)
-      const res = await this.$axios.$get('https://restcountries.com/v3.1/region/asia', {
+      const res = await this.$axios.$get('https://restcountries.com/v3.1/all', {
         params: {
           fields: 'name,region,flags,capital,population'
         }

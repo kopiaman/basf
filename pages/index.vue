@@ -1,21 +1,64 @@
 <template>
   <div>
-    <div class="mb-3 flex justify-end">
-      <input
-        v-model="search"
-        class="p-3 rounded-l-3xl w-full sm:w-1/4"
-        placeholder="Search Name / Capital"
-      >
-      <button class="bg-red-500 p-3 rounded-r-3xl w-32" @click="search=''">
-        <i class="el-icon-delete" /> <span> Clear</span>
-      </button>
+    <div class="mb-3 flex justify-between">
+      <!-- logo -->
+      <div class="flex justify-center sm:justify-start">
+        <img src="/img/basf_logo.svg" class="h-10 sm:h-20  ">
+      </div>
+
+      <!--search filter -->
+      <div class="sm:w-1/2 flex justify-end">
+        <button class="bg-yellow-500 p-3 rounded-3xl  mr-3 flex items-center" @click="modalVisible= true">
+          <i class="el-icon-data-line text-2xl mr-3" /> <div> Population Comparison ({{ totalComparison }})</div>
+        </button>
+
+        <input
+          v-model="search"
+          class="p-3 rounded-l-3xl w-full sm:w-1/2"
+          placeholder="Search Name / Capital"
+        >
+        <button class="bg-red-500 p-3 rounded-r-3xl w-32" @click="search=''">
+          <i class="el-icon-delete" /> <span> Clear</span>
+        </button>
+      </div>
     </div>
+
+    <!-- modal -->
+    <el-dialog
+      :visible.sync="modalVisible"
+      width="30%"
+    >
+      <PopulationChart
+        :chart-data="{
+          labels: populationLabel,
+          datasets: [
+            {
+              axis: 'x',
+              label: 'Population',
+              backgroundColor: '#2a7ec4',
+              data: populationData
+            }
+          ]
+        }"
+        :options="{ indexAxis: 'y'}"
+      />
+    </el-dialog>
+
+    <!-- table -->
     <div class="rounded-3xl p-3 bg-white">
       <el-table
         id="tableData"
+        v-loading="isLoading"
         :data="tableData"
         class="w-full"
+        element-loading-text="Loading..."
+        element-loading-spinner="el-icon-loading"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column
+          type="selection"
+          width="55"
+        />
         <el-table-column
 
           label="Name"
@@ -24,8 +67,8 @@
         >
           <template slot-scope="scope">
             <div class="flex items-center">
-              <img :src="scope.row.flags.svg" class="h-5 w-7 mr-2">
-              <!-- <div>{{ scope.row.name.common }}</div> -->
+              <!-- <el-checkbox :key="scope.row.name.common" :value="scope.row.name.common" @change="populationCompare(scope.row.name.common)" /> -->
+              <img :src="scope.row.flags.svg" class="h-5 w-7 mx-2">
               <span v-html="$options.filters.highlight(scope.row.name.common, search)">{{ scope.row.name.common }}</span>
             </div>
           </template>
@@ -48,6 +91,11 @@
             </span>
           </template>
         </el-table-column>
+        <el-table-column
+          label="Population"
+          prop="population"
+          sortable
+        />
         <el-table-column
           :label="`Favourites (${totalFavourites})`"
           align="right"
@@ -75,15 +123,34 @@ export default {
   },
   data() {
     return {
-      search: ''
+      search: '',
+      populationCheckbox: [],
+      modalVisible: false,
+      populationLabel: [],
+      populationData: [],
+      sampleChartData: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        datasets: [
+          {
+            label: 'Population',
+            backgroundColor: '#f87979',
+            data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
+          }
+        ]
+      }
     }
   },
 
   computed: {
     ...mapState({
       countries: state => state.countries.countries,
-      favourites: state => state.countries.favourites
+      favourites: state => state.countries.favourites,
+      isLoading: state => state.countries.isLoading
     }),
+
+    totalComparison() {
+      return this.populationCheckbox.length
+    },
     totalFavourites() {
       return this.favourites.length
     },
@@ -119,6 +186,13 @@ export default {
   },
 
   methods: {
+    handleSelectionChange(val) {
+      // add item to population checkbox data
+      this.populationCheckbox = val
+      // loop val array to extract the data
+      this.populationData = val.map(item => item.population)
+      this.populationLabel = val.map(item => item.name.common)
+    },
     searchName(data) {
       return data.name.common.toLowerCase().includes(this.search.toLowerCase())
     },
@@ -126,12 +200,6 @@ export default {
       if (data.capital && data.capital.length > 0) {
         return data.capital.toString().toLowerCase().includes(this.search.toLowerCase())
       }
-    },
-    handleEdit(index, row) {
-      console.log(index, row)
-    },
-    handleDelete(index, row) {
-      console.log(index, row)
     }
   }
 }

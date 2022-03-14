@@ -1,9 +1,13 @@
 export const state = () => ({
   countries: [],
-  favourites: []
+  favourites: [],
+  isLoading: false
 })
 
 export const mutations = {
+  UPDATE_isLoading(state, payload) {
+    state.isLoading = payload
+  },
   UPDATE_countries(state, payload) {
     state.countries = payload
   },
@@ -19,16 +23,19 @@ export const mutations = {
 }
 
 export const actions = {
-  async FETCH_countries(context) {
+  async FETCH_countries({ commit }) {
     try {
-      const res = await this.$axios.$get('https://restcountries.com/v3.1/all', {
+      commit('UPDATE_isLoading', true)
+      const res = await this.$axios.$get('https://restcountries.com/v3.1/region/asia', {
         params: {
           fields: 'name,region,flags,capital,population'
         }
       })
-      context.commit('UPDATE_countries', res)
+      commit('UPDATE_countries', res)
     } catch (error) {
       throw new Error(error.message)
+    } finally {
+      commit('UPDATE_isLoading', false)
     }
   }
 }
